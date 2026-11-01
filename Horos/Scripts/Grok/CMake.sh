@@ -42,13 +42,14 @@ cxxfs=($OTHER_CPLUSPLUSFLAGS)
 ldfs=($OTHER_LDFLAGS)
 
 args+=(-DCMAKE_OSX_DEPLOYMENT_TARGET="$MACOSX_DEPLOYMENT_TARGET")
+args+=(-DCMAKE_POLICY_VERSION_MINIMUM=3.5)
 args+=(-DCMAKE_OSX_ARCHITECTURES="$ARCHS")
 
 args+=(-DCMAKE_INSTALL_PREFIX="$TARGET_TEMP_DIR/Install")
 args+=(-DGROK_INSTALL_INCLUDE_DIR="include/OpenJPEG")
 args+=(-DGROK_INSTALL_LIB_DIR="lib")
 
-args+=(-DBUILD_CODEC=ON)
+args+=(-DBUILD_CODEC=OFF) # Horos only needs libopenjp2; the codec tools fail to link against libtiff on recent toolchains
 args+=(-DBUILD_PLUGIN_LOADER=OFF)
 args+=(-DBUILD_DOC=OFF)
 args+=(-DBUILD_EXAMPLES=OFF)

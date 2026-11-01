@@ -5,8 +5,10 @@ export PATH="$PATH:/opt/local/bin:/opt/local/sbin:/opt/homebrew/bin/"
 path="$( cd "$(dirname "${BASH_SOURCE[0]}")" && pwd )/$(basename "${BASH_SOURCE[0]}")"
 cd "$TARGET_NAME"; pwd
 
+sh "$PROJECT_DIR/Horos/Scripts/Patches/apply.sh" "$TARGET_NAME" || exit 1 # local fixes for newer toolchains, see Horos/Scripts/Patches
+
 env=$(env|sort|grep -v 'LLBUILD_BUILD_ID=\|LLBUILD_LANE_ID=\|LLBUILD_TASK_ID=\|Apple_PubSub_Socket_Render=\|DISPLAY=\|SHLVL=\|SSH_AUTH_SOCK=\|SECURITYSESSIONID=')
-hash="$(git describe --always --tags --dirty) $(md5 -q "$path")-$(md5 -qs "$env")"
+hash="$(git describe --always --tags --dirty) $(md5 -q "$path")-$(md5 -qs "$env")-$(cat "$PROJECT_DIR/Horos/Scripts/Patches/$TARGET_NAME"/*.patch 2>/dev/null | md5 -q)"
 
 set -e; set -o xtrace
 
@@ -39,6 +41,7 @@ cxxfs=( $OTHER_CPLUSPLUSFLAGS )
 
 args+=(-Wno-dev)
 args+=(-DCMAKE_OSX_DEPLOYMENT_TARGET="$MACOSX_DEPLOYMENT_TARGET")
+args+=(-DCMAKE_POLICY_VERSION_MINIMUM=3.5)
 args+=(-DCMAKE_OSX_ARCHITECTURES="$ARCHS")
 args+=(-DDCMTK_ENABLE_MANPAGES=OFF)
 

@@ -42,6 +42,7 @@ args+=(-DBUILD_EXAMPLES=OFF)
 args+=(-DBUILD_SHARED_LIBS=OFF)
 args+=(-DBUILD_TESTING=OFF)
 args+=(-DCMAKE_POLICY_VERSION_MINIMUM=3.5)
+args+=(-DCMAKE_C_FLAGS="-I$PROJECT_DIR/Horos/Scripts/Compat -Dfdopen=fdopen") # <fp.h> shim for bundled libpng; keep bundled zlib from macro-ing away fdopen on macOS
 args+=(-DCMAKE_OSX_DEPLOYMENT_TARGET="$MACOSX_DEPLOYMENT_TARGET")
 args+=(-DCMAKE_OSX_ARCHITECTURES="$ARCHS")
 
