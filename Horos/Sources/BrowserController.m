@@ -19446,6 +19446,12 @@ restart:
         }
     }
     
+    // No built-in item or loaded plugin provides this identifier (e.g. the saved configuration lists an item from a plugin
+    // that failed to load, such as the x86_64-only HorosCloud plugin on arm64). An empty item renders as a blank button;
+    // returning nil makes NSToolbar drop it.
+    if (!toolbarItem.view && !toolbarItem.image && toolbarItem.label.length == 0)
+        return nil;
+    
     return toolbarItem;
 }
 

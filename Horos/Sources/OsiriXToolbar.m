@@ -39,12 +39,48 @@
 #import "ViewerController.h"
 #import "ToolbarPanel.h"
 #import "NSWindow+N2.h"
+#import <objc/runtime.h>
 
 @implementation OsiriXToolbar
 
 - (void)runCustomizationPalette:(id)sender
 {
 	[super runCustomizationPalette: sender];
+}
+
+@end
+
+// Horos' toolbar icons are large PDFs (~530pt). Older AppKit scaled image-based toolbar
+// items down to the standard 32pt automatically; the macOS 26+ toolbar lays items out at
+// the image's intrinsic size, so the toolbar grows to fill most of the window. Clamp every
+// image set on a toolbar item (browser, viewers, plugins) to the classic 32pt size.
+
+static const CGFloat HorosToolbarItemImageMaxSize = 32;
+
+@implementation NSToolbarItem (HorosToolbarImageSize)
+
++ (void)load
+{
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        Method original = class_getInstanceMethod(self, @selector(setImage:));
+        Method clamped = class_getInstanceMethod(self, @selector(horos_setImageClampedToToolbarSize:));
+        if (original && clamped)
+            method_exchangeImplementations(original, clamped);
+    });
+}
+
+- (void)horos_setImageClampedToToolbarSize:(NSImage *)image
+{
+    NSSize size = image.size;
+    if (image && (size.width > HorosToolbarItemImageMaxSize || size.height > HorosToolbarItemImageMaxSize))
+    {
+        CGFloat scale = HorosToolbarItemImageMaxSize / MAX(size.width, size.height);
+        image = [[image copy] autorelease]; // don't resize the shared +imageNamed: instance
+        image.size = NSMakeSize(round(size.width * scale), round(size.height * scale));
+    }
+
+    [self horos_setImageClampedToToolbarSize:image]; // swapped: calls the original -setImage:
 }
 
 @end
